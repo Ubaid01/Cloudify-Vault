@@ -10,8 +10,6 @@
     "build:local": "parcel build ./public/js/index.js --dist-dir ./public/js/dist --no-cache && rmdir /s /q .parcel-cache",
     "watch:js": "parcel watch ./public/js/index.js --dist-dir ./public/js/dist --no-hmr"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
@@ -46,5 +44,8 @@
     "eslint-plugin-prettier": "^5.5.3",
     "parcel": "^2.15.4",
     "prettier": "^3.6.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
