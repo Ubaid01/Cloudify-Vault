@@ -1,0 +1,15 @@
+doctype
+html 
+    head 
+        meta(charset='UTF-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1.0')
+        link(rel="stylesheet", href="/css/style.css")
+        link(rel="shortcut icon", href="/img/favicon.png", type="image/png")
+        title Cloudify Vault
+    body( data-user = ( user ? user.role : null ) )
+        include _header
+        .container
+            block content
+        //- script(src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.11.0/axios.js")
+        script(type="module", src="/js/dist/index.js") 
+        include _footer

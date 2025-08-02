@@ -1,0 +1,31 @@
+extends base
+
+mixin addCard( title , description )
+    .card
+        h2= title 
+        p= description
+
+block content
+    .hero
+        h1 Welcome to Cloudify Vault
+        p Upload, store, and manage your all files securely on cloud.
+        a.btn(href= ` ${ ( user ) ? '/my-uploads' : '/login' }`) Get Started
+
+    .features
+        +addCard( 'Fast Uploads' , 'Enjoy optimized image and video handling powered by Cloudinary\'s API.')
+        +addCard( 'Easy Access' , 'Your files are securely stored and can be accessed anytime, anywhere.')
+        +addCard( 'Built for You' , 'Built with Node.js, Express, Multer, and Cloudinary to ensure smooth performance.')
+
+    .section.stats-section
+        h2( style= 'margin-top: 2rem ; ' ) File Upload Stats
+        if stats.length
+            p.stats-text= `Currently ${totalUsers} user${totalUsers > 1 ? 's' : ''} have joined us and ${totalFiles} file${totalFiles > 1 ? 's' : ''} overall been secured.`
+            .features.stats-grid
+                each stat in stats
+                    .card.stats-card
+                        //- h2= stat._id.toUpperCase()
+                        h2= stat.ext.toUpperCase()
+                        p= `${stat.count} upload${stat.count > 1 ? 's' : ''}`
+        else
+            p.stats-text No uploads yet. Be the first to upload your files and get started!
+

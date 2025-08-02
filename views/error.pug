@@ -1,0 +1,7 @@
+extends base
+
+block content
+    .error-page
+        h1 Oops! #{err.name}
+        p #{err.message}
+        a.btn(href="/") Back to Home

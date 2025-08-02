@@ -1,0 +1,28 @@
+extends base
+
+block content
+    .auth-container
+        .auth-card
+            h1 Welcome Back
+            p Login in to access your uploaded files
+
+            form.auth-form.login-form(action="")
+                .form-group
+                    label(for="email") Email Address
+                    input#email(type="email", name="email" , placeholder="Enter your email", required)
+
+                .form-group
+                    label(for="password") Password
+                    input#password(type="password", name="password", placeholder="••••••••", required)
+
+                .form-options
+                    label.checkbox-label
+                        input(type="checkbox", name="remember")
+                        span Remember me on this device
+                    a.forgot-link(href="#") Forgot password?
+
+                button.btn.btn-primary(type="submit") Sign In
+
+            .auth-footer
+                p Don't have an account? 
+                    a(href="/signup") Create one here

@@ -1,0 +1,15 @@
+header
+    .logo
+        img(src="/img/logo.png", alt="Logo")
+    nav
+        a(href="/") Home
+        if user
+            a(href="/my-uploads") My Uploads
+            a#logout Log out
+
+            .user-info
+                img.user-avatar(src=`/img/users/${ user.photo }`, alt=`Profile Pic of ${ user.name.split(' ')[0] }`)
+                span Hello, #{ user.name }
+        else
+            a(href="/login") Log in
+            a(href="/signup") Sign up

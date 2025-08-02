@@ -1,0 +1,47 @@
+extends base
+
+mixin uploadCard(upload)
+    - const filename = upload.public_id.substring( upload.public_id.lastIndexOf('/') + 1, upload.public_id.lastIndexOf('_') ) + '.' + upload.url.split('.').pop() ;
+    .upload-card.upload-row
+        .upload-thumb
+            //- Using .jpg will give video A poster also from url i.e. poster= for <video>
+            if upload.resource_type !== 'raw'
+                img( src= `${ upload.url.substring( 0 , upload.url.lastIndexOf('.') ) }.jpg`, alt=filename )
+            else
+                img( src= '/img/raw.png' ,  alt=filename , style='object-fit: contain' )
+
+        .upload-details
+            h3= filename
+            p.upload-date Uploaded On: #{ new Date(upload.createdAt).toLocaleDateString() }
+            p.upload-size= `${ (upload.size / (1024 * 1024) ).toFixed(2) } MB`
+        .upload-buttons
+            a.btn.btn-small( href=upload.url, target="_blank") View
+            button.btn.btn-small.btn-danger(type="submit" , data-id=upload.delete_token) Delete
+
+block content
+    .account-header
+        h1 Your Uploads
+        p Easily manage your uploaded images and files
+
+        .upload-section
+            h2 Upload New Files
+            form.upload-form(action="")
+                .upload-area
+                    //- input#file(type="file", name="image", accept="image/*", required)
+                    input#files(type="file", name="files", multiple , required)
+                    label(for="files")
+                        .upload-icon 📁
+                        p Click or drag to select files
+                        small Supported formats: JPG, MP4, PDF (Max 5MB)
+                button.btn.btn-primary#upload(type="submit") Upload Files
+
+    if user.fileUploads.length
+        .uploads-grid.vertical
+            each upload in user.fileUploads
+                +uploadCard(upload)
+    else
+        .no-uploads
+            h2 No uploads yet
+            p Start by uploading your first file above
+            a.btn(href="/") Go to Home
+    .div-loader(style="display: none").loader
