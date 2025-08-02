@@ -6,7 +6,8 @@
   "scripts": {
     "start": "npx nodemon server.js",
     "start:prod": "cross-env NODE_ENV=production npx nodemon server.js",
-    "build": "parcel build ./public/js/index.js --dist-dir ./public/js/dist --no-cache && rmdir /s /q .parcel-cache",
+    "build": "parcel build ./public/js/index.js --dist-dir ./public/js/dist --no-cache",
+    "build:local": "parcel build ./public/js/index.js --dist-dir ./public/js/dist --no-cache && rmdir /s /q .parcel-cache",
     "watch:js": "parcel watch ./public/js/index.js --dist-dir ./public/js/dist --no-hmr"
   },
   "keywords": [],
