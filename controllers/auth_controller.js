@@ -17,6 +17,7 @@ const createSendToken = ( user, res , statusCode = 200 ) => {
         // expires: Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 3600000 , // Error: option "expires" is invalid as needed object NOT timestamp.
         expires: new Date( Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 3600000 ) ,
         httpOnly: true ,
+        sameSite: 'strict' ,
         secure: process.env.NODE_ENV === 'production'
     } ) ;
 
@@ -25,6 +26,7 @@ const createSendToken = ( user, res , statusCode = 200 ) => {
         httpOnly: true,
         sameSite: 'strict',
         secure: process.env.NODE_ENV === 'production',
+        path: '/api/users/refresh-token'  // Browser will only send this cookie with requests made to this path or nested.
     } ) ;
 
     user.password = undefined ;
@@ -53,6 +55,7 @@ export const refreshToken = catchAsync( async (req, res, next) => {
     res.cookie( 'jwt' , accessToken , {
         expires: new Date( Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 3600000 ) ,
         httpOnly: true,
+        sameSite: 'strict' ,
         secure: process.env.NODE_ENV === 'production' ,
     } ) ;
 
@@ -92,13 +95,20 @@ export const login = catchAsync( async ( req , res , next ) => {
     createSendToken( user , res ) ;
 } ) ;
 
-export const logout = ( req , res ) => {
-    res.clearCookie( 'jwt' , { httpOnly: true , secure: process.env.NODE_ENV === 'production' } ) ;
-    res.clearCookie( 'refreshJwt' , { httpOnly: true , secure: process.env.NODE_ENV === 'production' } ) ;
-    res.status( 200 ).json( {
-        status: 'success'
+export const logout = (req, res) => {
+    res.clearCookie('jwt', {
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production'
     } ) ;
-}
+    res.clearCookie('refreshJwt', {
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/api/users/refresh-token'
+    } ) ;
+    res.status(200).json( { status: 'success' } ) ;
+} ;
 
 export const protect = catchAsync( async ( req , res , next ) => {
     let token ;
