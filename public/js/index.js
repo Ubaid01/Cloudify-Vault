@@ -7,9 +7,13 @@ const signupForm = document.querySelector('.signup-form') ;
 const loginForm = document.querySelector('.login-form') ;
 const logoutBtn = document.getElementById('logout') ;
 const uploadForm = document.querySelector('.upload-form') ;
+const filesInput = document.getElementById('files') ;
+const filesList = document.getElementById('file-list');
+const filesLabel = document.querySelector('label[for="files"]');
 const loader = document.querySelector('.div-loader') ;
 const uploadsGrid = document.querySelector('.uploads-grid') ; // MISTAKE ; Attach the event listener to the COMMON parent element. WHICH is GRID not CARD.
 const hasUser = document.body.dataset.user ;
+let fileApiCalled = false ;
 
 // * Only using setInterval() will work ONLY IF page is NOT refreshed OR routes NOT changed AS then index.js will be reloaded AND setInterval() is reset.
 export function setLastRefresh( timestamp ) {
@@ -64,7 +68,10 @@ if( logoutBtn ) {
 }
 
 async function handleUploadForm( ) {
-    const filesInput = document.getElementById('files') ;
+    if( fileApiCalled ) return ;
+    fileApiCalled = true ;
+
+    loader.style.display = 'block' ;
     // console.log( filesInput.files ) ;  
     const maxSize = 5 * 1024 * 1024 ;
     const form = new FormData() ;
@@ -72,19 +79,68 @@ async function handleUploadForm( ) {
     for( const file of filesInput.files ) {
         if( file.size > maxSize ) {
             alertMsg( 'File size should be less than 5MB' ) ;
+            loader.style.display = 'none' ;
+            fileApiCalled = false ;
             return ;
         }
         form.append( 'files' , file ) ; // Directly appending all files into 1-field would accept 0 files i.e. [].
     }   
-    await uploadFiles( form ) ; 
+
+    try {
+        await uploadFiles( form ) ; 
+    }
+    finally {
+        filesList.value = '' ;
+        loader.style.display = 'none' ;
+        fileApiCalled = false ; // Doing this in "finally" will run this in last of response so UI will not stuck.
+    }
+}
+
+function renderFileNames(files) {
+    if ( !filesList )  return;
+
+    if ( !files.length ) {
+        filesList.innerHTML = '<p>No files selected</p>';
+        return;
+    }
+
+    const list = Array.from(files).map( file => {
+        const sizeMB = ( file.size / (1024 * 1024) ).toFixed(2) ;
+        return `<li>${file.name} (${sizeMB} MB)</li>` ;
+    } ) .join('') ;
+
+    filesList.innerHTML = `<ul>${list}</ul>`;
+}
+
+if ( filesInput ) {
+    filesInput.addEventListener('change', () => {
+        renderFileNames( filesInput.files ) ; 
+    } ) ;
 }
 
 if( uploadForm ) {
+    filesLabel.addEventListener( 'dragover' , e => {
+        e.preventDefault() ;
+        filesLabel.classList.add('drag-over') ;
+    } ) ;
+
+    filesLabel.addEventListener( 'dragleave' , e => {
+        if ( !filesLabel.contains(e.relatedTarget) ) // Only remove when cursor truly leaves the label.
+            filesLabel.classList.remove('drag-over') ;
+    } ) ;
+
+    uploadForm.addEventListener('drop', async e => {
+        e.preventDefault();
+        filesLabel.classList.remove('drag-over') ;
+        const filesInput = document.getElementById('files') ;
+        filesInput.files = e.dataTransfer.files ;
+        renderFileNames( filesInput.files ) ;
+        await handleUploadForm( ) ;
+    } ) ;
+
     uploadForm.addEventListener( 'submit' , async e => {
         e.preventDefault() ;
-        loader.style.display = 'block' ;
         await handleUploadForm( ) ;
-        loader.style.display = 'none' ;
     } ) ;
 }
 
