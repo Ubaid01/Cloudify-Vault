@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npx nodemon server.js",
     "start:prod": "cross-env NODE_ENV=production npx nodemon server.js",
-    "build": "parcel build ./public/js/index.js --dist-dir ./public/js/dist --no-cache",
+    "build": "parcel build ./public/js/index.js --dist-dir ./public/js/dist --no-cache --no-source-maps",
     "build:local": "parcel build ./public/js/index.js --dist-dir ./public/js/dist --no-cache && rmdir /s /q .parcel-cache",
     "watch:js": "parcel watch ./public/js/index.js --dist-dir ./public/js/dist --no-hmr"
   },
@@ -34,7 +34,7 @@
     "pug": "^3.0.3",
     "sharp": "^0.34.3",
     "xss-clean": "^0.1.4"
-  },
+  }, 
   "devDependencies": {
     "buffer": "^6.0.3",
     "eslint": "^9.32.0",
@@ -44,6 +44,15 @@
     "eslint-plugin-prettier": "^5.5.3",
     "parcel": "^2.15.4",
     "prettier": "^3.6.2"
+  },
+  "targets": {
+    "default": {
+      "context": "browser",
+      "includeNodeModules": true,
+      "outputFormat": "esmodule",
+      "isLibrary": false,
+      "sourceMap": false
+    }
   },
   "engines": {
     "node": ">=20.0.0"

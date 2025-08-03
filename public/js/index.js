@@ -1,3 +1,4 @@
+// For Parcel ; Set entry-point dist/index.js as a browser script, not Node.js. For that either can set targets OR Rename index.js to index.browser.js.
 import { submitForm , logout , startAdjustedTimer } from "./user_settings.js" ;
 import { uploadFiles , deleteFile } from "./file_handling.js";
 import alertMsg from "./alert.js" ;
