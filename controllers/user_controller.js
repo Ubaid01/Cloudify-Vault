@@ -62,7 +62,15 @@ export const getUser = catchAsync( async( req , res , next ) => {
 } ) ;
 
 export const getUserStats = catchAsync( async( req , res , next ) => {
+    // const start = Date.now() ;
     const stats = await User.aggregate( [
+        // Reduced memory usage and I/O by using required fields. ( This helped a lot for large datasets. )
+        { 
+            $project: {
+                email: 1,
+                'fileUploads.url': 1
+            }
+        },
         {
             $unwind: { path: '$fileUploads' }
         },
@@ -79,7 +87,7 @@ export const getUserStats = catchAsync( async( req , res , next ) => {
             $group: {
                 _id: '$ext',
                 count: { $sum: 1 },
-                usersReg: { $addToSet: '$email' } // Collect unique users for each file exts.
+                tempUsers: { $push: '$email' } // No need use "$addToSet" as emails are unique so get directly.
             }
         },
         {
@@ -94,27 +102,27 @@ export const getUserStats = catchAsync( async( req , res , next ) => {
                         count: '$count'
                     }
                 },
-                allUsers: { $addToSet: '$usersReg' } // Now, group everything into a single result array, containing the unique users across all file type arrays. Can use $push also.
+                users: { $push: '$tempUsers' } // Made array of all users collected for "$setUnion".
             }
         },
         {
             $project: {
                 stats: 1,
-                allUsers: { 
+                users: {
                     $reduce: {
-                        input: { $concatArrays: '$allUsers' }, // Concatenate user arrays from all file types
+                        input: '$users' , // Give <array-of-arrays> MUST.
                         initialValue: [],
-                        in: { $setUnion: ['$$value', '$$this'] } // Get unique users by using $setUnion THEN count in next stage.
+                        in: { $setUnion: ['$$value', '$$this'] } // $setUnion merges both arrays and removes duplicates giving flat array.
                     }
-                } ,
+                }
             }
         },
         {
             $project: {
                 stats: 1,
-                usersCount: { $size: '$allUsers' }
+                usersCount: { $size: '$users' }
             }
-        }
+        },
         // {
         //     $limit: 6
         // }
@@ -129,6 +137,7 @@ export const getUserStats = catchAsync( async( req , res , next ) => {
     res.locals.stats = ( result.stats.length > 6 ) ? result.stats.slice( 0, 6 ) : result.stats ;
     res.locals.totalUsers = result.usersCount ;
     res.locals.totalFiles = result.stats.reduce( ( acc , cur ) => acc + cur.count , 0 ) ;
+    // console.log( `Query took ${ Date.now() - start } ms` ) ; // .explain() is unsupported due to writeConcern, so did manually.
     next() ;
 } ) ;
 

@@ -7,8 +7,8 @@ const uploadSchema = new mongoose.Schema( {
     // Only used this so it can be indexed ELSE can extract from path also.
     public_id: {
         type: String ,
-        unique: true ,
-        sparse: true ,  // MISTAKE ; Now using this MongoDB will only apply the unique constraint to documents where url exists, ignoring null. BUT still it will be global SO give with userSchema.
+        // unique: true ,
+        // sparse: true ,  // MISTAKE ; Now using this MongoDB will only apply the unique constraint to documents where url exists, ignoring null. BUT still it will be global SO give with userSchema.
         required: true 
     },
     resource_type: {
@@ -18,8 +18,7 @@ const uploadSchema = new mongoose.Schema( {
     // ? Used this so it is passed as data-attribute to expose on front-end.
     delete_token: {
         type: String ,
-        unique: true,
-        sparse: true ,
+        required: true ,
         // default: () => crypto.randomBytes(16).toString('hex')  // Can be non-unique some minor-times also.
         default: crypto.randomUUID // uuidv4() OR 128 bit number with 122 random bits. hex-len = 36.
     },
@@ -84,7 +83,7 @@ const userSchema = new mongoose.Schema( {
     fileUploads: [uploadSchema]
 } ) ;
 
-// userSchema.index( { email: 1 } , { unique: true } ) ;
+userSchema.index( { 'fileUploads.url': 1 , email: 1 } ) ; // Apply on overall user for aggregate pipeline ALSO both fields are required AS they are accessed together after unwind, and sort/limit is applied on grouped results.
 
 userSchema.pre('save', async function ( next ) {
     if( !this.isModified('password') ) return next() ;
